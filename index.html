@@ -7,35 +7,51 @@
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div id="calculator" class="container">
-        <input type="text" id="display" class="display" disabled />
-        <div class="buttons">
-            <button class="btn" data-value="7">7</button>
-            <button class="btn" data-value="8">8</button>
-            <button class="btn" data-value="9">9</button>
-            <button class="btn operator" data-value="/">/</button>
+<body class="flex items-center justify-center min-h-screen bg-gray-500">
+  <div
+    class="w-[90%] max-w-sm bg-gray-400 text-white rounded-2xl p-6 shadow-lg sm:w-[400px] sm:h-auto h-[90vh] md: h-[80dvh] overflow-hidden sm:rounded-2xl sm:p-8 transition-all"
+  >
+    <!-- Display section -->
+    <div
+      id="display"
+      class="w-full h-48 bg-gray-700 rounded-xl mb-6 flex items-end justify-end p-4 text-3xl font-mono break-words mt-8 md:mt-0"
+    >
+      0
+  </div>
+    <!-- Buttons section -->
+    <div class="grid grid-cols-4 gap-x-4 gap-y-12 md:gap-x-4 md:gap-y-2 lg:gap-x-2 lg:gap-y-1 p-2 text-2xl">
 
-            <button class="btn" data-value="4">4</button>
-            <button class="btn" data-value="5">5</button>
-            <button class="btn" data-value="6">6</button>
-            <button class="btn operator" data-value="*">*</button>
+      <!-- Row 1 -->
+      <button class="btn function-btn clear">C</button>
+      <button class="btn function-btn bracket">±</button>
+      <button class="btn function-btn percent">%</button>
+      <button class="btn operator-btn divide">÷</button>
 
-            <button class="btn" data-value="1">1</button>
-            <button class="btn" data-value="2">2</button>
-            <button class="btn" data-value="3">3</button>
-            <button class="btn operator" data-value="-">-</button>
-
-            <button class="btn" data-value="0">0</button>
-            <button class="btn" data-value=".">.</button>
-            <button class="btn equal" data-value="=">=</button>
-            <button class="btn operator" data-value="+">+</button>
-
-            <button class="btn clear" data-value="C">C</button>
-        </div>
+      <!-- Row 2 -->
+      <button class="btn number-btn">7</button>
+      <button class="btn number-btn">8</button>
+      <button class="btn number-btn">9</button>
+      <button class="btn operator-btn multiply">×</button>       
+      <!-- Row 3 -->  
+      <button class="btn number-btn">4</button>   
+      <button class="btn number-btn">5</button>
+      <button class="btn number-btn">6</button>
+      <button class="btn operator-btn minus">−</button>
+      <!-- Row 4 -->
+        <button class="btn number-btn">1</button>
+        <button class="btn number-btn">2</button>
+        <button class="btn number-btn">3</button>
+        <button class="btn operator-btn plus">+</button>
+        <!-- Row 5 -->
+         <button class="btn function-btn scientific">SC</button>
+        <button class="btn number-btn ">0</button>
+        <button class="btn number-btn">.</button>
+        <button class="btn operator-btn">=</button>
     </div>
-    
+  </div>
+  <script src="script.js"></script>
+        
 
-    <script src="script.js"></script>
 </body>
+
 </html>

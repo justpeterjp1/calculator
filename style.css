@@ -1,0 +1,44 @@
+* {
+
+    box-sizing: border-box;
+}
+
+.btn {
+    cursor: pointer;
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    height: 45px;
+}
+.btn:active {
+    transform: scale(0.95); 
+}
+.btn:hover {
+    filter: brightness(1.1);
+}
+.operator-btn {
+    background-color: rgb(53, 82, 171);
+}
+.function-btn {
+    background-color: rgb(125, 125, 125);
+}
+.number-btn {
+    background-color: rgb(80, 80, 80);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+        height: 100vh;
+        
+    }
+}
+
+/* In your App.css or global.css */
+@supports (height: 100dvh) {
+  .h-screen {
+    height: 100dvh; /* fixes iOS Safari height issue */
+  }
+}
