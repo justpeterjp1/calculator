@@ -1,7 +1,8 @@
 // ===== function buttons logic =====
 // ===== Button logic are added to as they follow one another 
 // as best as possible
-const display = document.getElementById('display');
+const display = document.getElementById('current');
+const previousDisplay = document.getElementById('previous');
 const clearButton = document.querySelector('.clear');
 const bracketButton = document.querySelector('.bracket');
 const percentageButton = document.querySelector('.percent')
@@ -28,6 +29,8 @@ if (display.textContent === "0") {
 // Clear All
 function clearAll() {
     display.textContent = '0';
+    previousDisplay.style.display = 'none';
+    previousDisplay.textContent = ''; 
     updateClearButton();
 }
 
@@ -143,19 +146,52 @@ function limitInputLength() {
 
   };
 function appendToDisplay(value) {
-    if (display.textContent === "0" && value !== '.') {
-        display.textContent = value;
-    } else {
-        display.textContent += value;
+  const operators = ['+', '-', 'x', '÷'];
+  const content = display.textContent;
+  const lastChar = content.slice(-1);
+
+  // 1️⃣ Handle starting input
+  if (content === "0") {
+    if (value === '.') {
+      display.textContent = "0."; // start with 0.
+      return;
     }
-    updateClearButton();
-    limitInputLength();
+    if (operators.includes(value) && value !== '-') return; // only allow "-" to start negative
+    display.textContent = value;
+    return;
+  }
+
+  // 2️⃣ Prevent multiple dots in the same number
+  if (value === '.') {
+    const currentNumber = content.split(/[\+\-\x÷]/).pop();
+    if (currentNumber.includes('.')) return; // ignore extra dot
+  }
+
+  // 3️⃣ Prevent two operators in a row — replace old one instead
+  if (operators.includes(lastChar) && operators.includes(value)) {
+    // allow "-" to follow an operator if user wants negative number like "5 x -3"
+    if (value === '-' && lastChar !== '-') {
+      display.textContent += value;
+      return;
+    }
+    // otherwise, replace previous operator
+    display.textContent = content.slice(0, -1) + value;
+    return;
+  }
+
+  // 4️⃣ Append new value normally
+  display.textContent += value;
+  updateClearButton();
+  limitInputLength();
 }
+
+
 
 
 // Number buttons
 // Digits
 numberButtons.forEach(button => {
+  
   button.addEventListener('click', () => appendToDisplay(button.textContent));
 });
 
@@ -168,53 +204,57 @@ divideButton.addEventListener('click', () => appendToDisplay('÷'));
 
 
 // Equals button
-equalsButton.addEventListener('click', () => {
-    let expression = display.textContent.replace(/x/g, '*').replace(/÷/g, '/');
-    try {
-     console.log("Evaluating:", expression);
-      let result = math.evaluate(expression);
-      console.log("Result:", result);
-      if (Math.abs(result) >= 1e15 || (Math.abs(result) < 1e-6 && result !== 0)) {
-        display.textContent = result.toExponential(6);
-      } else {
-        const absResult = Math.abs(result);
-        let formatted;
-        if (absResult < 1) {
-          formatted = parseFloat(absResult.toPrecision(10)).toString();
-          
-        } else {
-          formatted = absResult
-            .toLocaleString('en-US', { maximumFractionDigits: 10 })
-        }
-        display.textContent = (result < 0 ? '-' : '') + formatted;
-      }
-    } catch (error) {
-          display.textContent = "Error";
-          
-          numberButtons.forEach(button => {
-            button.disabled = true;
-          });
-          operatorButtons.forEach(button => {
-            button.disabled = true;
-          });
-          clearButton.textContent = 'AC';
-          clearButton.removeEventListener('mousedown', handlePressStart);
-          clearButton.removeEventListener('mouseup', handlePressEnd);
-          clearButton.removeEventListener('touchstart', handlePressStart);
-          clearButton.removeEventListener('touchend', handlePressEnd);
-          clearButton.addEventListener('click', () => {
-            location.reload();
-          });
-        }
-    if (display.textContent.length > 15) {
-  display.textContent = display.textContent.slice(0, 15);
-}
+// Firstly to Keep a clean copy of whatever number is currently valid
+let parseExpression = ''; 
 
-    updateClearButton();
+equalsButton.addEventListener('click', () => {
+  // Convert pretty symbols to math-safe operators
+  let expression = display.textContent.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '');
+  
+  try {
+    const prettyExpression = display.textContent.replace(/\*/g, '×').replace(/\//g, '÷');
+    previousDisplay.style.display = 'block';
+    previousDisplay.textContent = prettyExpression;
+
+    let result = math.evaluate(expression);
+
+    let displayValue;
+    if (Math.abs(result) >= 1e15 || (Math.abs(result) < 1e-6 && result !== 0)) {
+      displayValue = result.toExponential(6);
+    } else {
+      const absResult = Math.abs(result);
+      if (absResult < 1) {
+        displayValue = parseFloat(absResult.toPrecision(10)).toString();
+      } else {
+        displayValue = absResult.toLocaleString('en-US', { maximumFractionDigits: 10 });
+      }
+      displayValue = (result < 0 ? '-' : '') + displayValue;
+    }
+
+    // --- Update both displays ---
+    display.textContent = displayValue;
+    parseExpression = result.toString(); // keeping clean raw result for new calculations
+
+  } catch (error) {
+    display.textContent = "Error";
+    numberButtons.forEach(b => (b.disabled = true));
+    operatorButtons.forEach(b => (b.disabled = true));
+    clearButton.textContent = 'AC';
+    clearButton.addEventListener('click', () => location.reload());
+  }
+
+  if (display.textContent.length > 15) {
+    display.textContent = display.textContent.slice(0, 15);
+  }
+
+  updateClearButton();
 });
 
-// ===== End of function buttons logic =====
 
+const lastValue = display.dataset.rawValue || display.textContent;
+// to be used in future functions 
+
+// ===== End of function buttons logic =====
 // Function to add commas to numbers and cap numbers at a trillion
 
 
