@@ -26,6 +26,15 @@
     background-color: rgb(80, 80, 80);
     color: white;
 }
+.sci-btn {
+    background-color: rgb(137, 139, 139);
+    color: white;
+    width: 60px;
+}
+.adaptToScDisplay {
+    grid-gap: 24px;
+    margin-left: -6px;
+}
 
 @media (max-width: 768px) {
     .container {

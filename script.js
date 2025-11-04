@@ -16,6 +16,7 @@ const equalsButton = document.querySelector('.equals');
 
 
 
+
 display.addEventListener('input', limitInputLength);
 // Clear button
 // Function to update clear button text based on display content
@@ -36,9 +37,10 @@ function clearAll() {
 
 // helper function to update clear button text
 function deletelast() {
-    if (display.textContent !== '0') {
+ if (display.textContent !== '0') {
         display.textContent = display.textContent.slice(0, -1) || '0';
-} else {
+    }
+  else {
         display.textContent = '0';
     }
     updateClearButton();
@@ -54,8 +56,10 @@ function handlePressStart(e) {
 function handlePressEnd(e) {
   e.preventDefault();
   clearTimeout(clearPressTimer);
-
-  if (display.textContent !== '0') {
+  if (display.textContent === 'Error' && display.textContent.length !== "0") {
+       clearAll();
+        
+} else if (display.textContent !== '0') {
     // Short press → delete last character
     display.textContent = display.textContent.slice(0, -1) || '0';
   } else {
@@ -79,8 +83,6 @@ clearButton.addEventListener('mouseleave', () => {
 });
 
 // Bracket button
-// Globals to track open parentheses
-let openParenCount = 0;
 
 // helpers
 function lastCharOf(str) {
@@ -93,34 +95,34 @@ function updateClearButton() {
 }
 
 // bracket handler (replace previous logic)
-bracketButton.addEventListener("click", () => {
-  let current = display.textContent;
+let openBracketCount = 0;
 
-  // If display is initial "0", replace with "("
+bracketButton.addEventListener("click", () => {
+  let current = display.textContent.trim();
+  const last = current.slice(-1);
+
   if (current === "0") {
     display.textContent = "(";
-    openParenCount = 1;
+    openBracketCount = 1;
     updateClearButton();
     return;
   }
 
-  const last = lastCharOf(current);
-
-  // If last is digit or ')', prefer closing if there's an open '('
   if ((/\d|\)/).test(last)) {
-    if (openParenCount > 0) {
+    // If last is number or ")", close paren if open, else open new
+    if (openBracketCount > 0) {
       display.textContent += ")";
-      openParenCount -= 1;
+      openBracketCount--;
     } else {
-      // No open paren to close, so open a new one instead
       display.textContent += "(";
-      openParenCount += 1;
+      openBracketCount++;
     }
   } else {
-    // last is operator or '(' or whitespace — open a new paren
+    // Last is operator, start a new "("
     display.textContent += "(";
-    openParenCount += 1;
+    openBracketCount++;
   }
+
   updateClearButton();
 });
 
@@ -208,6 +210,10 @@ divideButton.addEventListener('click', () => appendToDisplay('÷'));
 let parseExpression = ''; 
 
 equalsButton.addEventListener('click', () => {
+  while (openBracketCount > 0) {
+  display.textContent += ")";
+  openBracketCount--;
+}
   // Convert pretty symbols to math-safe operators
   let expression = display.textContent.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '');
   
@@ -246,6 +252,8 @@ equalsButton.addEventListener('click', () => {
   if (display.textContent.length > 15) {
     display.textContent = display.textContent.slice(0, 15);
   }
+  
+
 
   updateClearButton();
 });
@@ -260,5 +268,20 @@ const lastValue = display.dataset.rawValue || display.textContent;
 
 
 // ===== Scientific buttons logic =====
-// To be implemented
+const scDisplay = document.getElementById('scientific');
+const scButtons = document.querySelectorAll('.sci-btn');
+const scToggleButton = document.getElementById('scToggleButton');
+const basicDisplay = document.getElementById('basic');
+scDisplay.style.display = 'none';
+function toggleScientific() {
+  if (scDisplay.style.display === 'none') {
+    scDisplay.style.display = 'grid';
+    basicDisplay.classList.add('adaptToScDisplay');
+  } else {
+    scDisplay.style.display = 'none';
+    basicDisplay.classList.remove('adaptToScDisplay');
+  }
+}
+
+scToggleButton.addEventListener("click", toggleScientific)
 // ===== End of scientific buttons logic =====
