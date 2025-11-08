@@ -3,13 +3,8 @@
     box-sizing: border-box;
 }
 
-.btn {
-    cursor: pointer;
-    border: none;
-    outline: none;
-    border-radius: 10px;
-    height: 45px;
-}
+functions > bg-gray-400
+
 .btn:active {
     transform: scale(0.95); 
 }

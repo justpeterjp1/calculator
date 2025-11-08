@@ -1,11 +1,9 @@
-// ===== function buttons logic =====
-// ===== Button logic are added to as they follow one another 
-// as best as possible
+// ===== DOM Elements =====
 const display = document.getElementById('current');
 const previousDisplay = document.getElementById('previous');
 const clearButton = document.querySelector('.clear');
 const bracketButton = document.querySelector('.bracket');
-const percentageButton = document.querySelector('.percent')
+const percentageButton = document.querySelector('.percent');
 const numberButtons = document.querySelectorAll('.number-btn');
 const plusButton = document.querySelector('.plus');
 const minusButton = document.querySelector('.minus');
@@ -14,56 +12,89 @@ const divideButton = document.querySelector('.divide');
 const operatorButtons = document.querySelectorAll('.operator-btn');
 const equalsButton = document.querySelector('.equals');
 
+// Scientific elements
+const scDisplay = document.getElementById('scientific');
+const scButtons = document.querySelectorAll('.sci-btn');
+const scToggleButton = document.getElementById('scToggleButton');
+const basicDisplay = document.getElementById('basic');
 
+// ===== Global Variables =====
+let openBracketCount = 0;
+let parseExpression = '';
+let clearPressTimer;
 
+// ===== Toggle Scientific Mode (FIXED) =====
+function toggleScientific() {
+  // Toggle the 'active' class for smooth animation
+  scDisplay.classList.toggle('active');
+  
+  // Update button text
+  if (scDisplay.classList.contains('active')) {
+    scToggleButton.textContent = 'Basic';
+  } else {
+    scToggleButton.textContent = 'SC';
+  }
+}
 
-display.addEventListener('input', limitInputLength);
-// Clear button
-// Function to update clear button text based on display content
+scToggleButton.addEventListener("click", toggleScientific);
+
+// ===== Helper Functions =====
 function updateClearButton() {
-if (display.textContent === "0") {
+  if (display.textContent === "0") {
     clearButton.textContent = 'C';
-} else {
+  } else {
     clearButton.textContent = 'AC';
-}
-}
-// Clear All
-function clearAll() {
-    display.textContent = '0';
-    previousDisplay.style.display = 'none';
-    previousDisplay.textContent = ''; 
-    updateClearButton();
+  }
 }
 
-// helper function to update clear button text
+function lastCharOf(str) {
+  return str.length === 0 ? "" : str.slice(-1);
+}
+
+function limitInputLength() {
+  const maxLength = 18;
+  if (display.textContent.length > maxLength) {
+    console.log("Limit reached");
+    display.textContent = display.textContent.slice(0, maxLength);
+  }
+}
+
+// ===== Clear Button Logic =====
+function clearAll() {
+  display.textContent = '0';
+  previousDisplay.style.display = 'none';
+  previousDisplay.textContent = ''; 
+  openBracketCount = 0;
+  updateClearButton();
+}
+
 function deletelast() {
- if (display.textContent !== '0') {
-        display.textContent = display.textContent.slice(0, -1) || '0';
-    }
-  else {
-        display.textContent = '0';
-    }
-    updateClearButton();
+  if (display.textContent !== '0') {
+    display.textContent = display.textContent.slice(0, -1) || '0';
+  } else {
+    display.textContent = '0';
+  }
+  updateClearButton();
 }
 
 function handlePressStart(e) {
   e.preventDefault();
   clearPressTimer = setTimeout(() => {
     clearAll();
-  }, 500); // 500ms for long press
+  }, 500);
 }
 
 function handlePressEnd(e) {
   e.preventDefault();
   clearTimeout(clearPressTimer);
-  if (display.textContent === 'Error' && display.textContent.length !== "0") {
-       clearAll();
-        
-} else if (display.textContent !== '0') {
-    // Short press → delete last character
+  
+  if (display.textContent === 'Error') {
+    clearAll();
+    numberButtons.forEach(b => (b.disabled = false));
+    operatorButtons.forEach(b => (b.disabled = false));
+  } else if (display.textContent !== '0') {
     display.textContent = display.textContent.slice(0, -1) || '0';
   } else {
-    // If already 0, just stay at 0
     display.textContent = '0';
   }
 
@@ -72,31 +103,13 @@ function handlePressEnd(e) {
 
 clearButton.addEventListener('mousedown', handlePressStart, { passive: false });
 clearButton.addEventListener('mouseup', handlePressEnd, { passive: false });
-// For mobile touch support
 clearButton.addEventListener('touchstart', handlePressStart, { passive: false});
 clearButton.addEventListener('touchend', handlePressEnd, { passive: false });
-
-
-// if user moves mouse away while pressing
 clearButton.addEventListener('mouseleave', () => {
   clearTimeout(clearPressTimer);
 });
 
-// Bracket button
-
-// helpers
-function lastCharOf(str) {
-  return str.length === 0 ? "" : str.slice(-1);
-}
-
-function updateClearButton() {
-  if (display.textContent === "0") clearButton.textContent = "C";
-  else clearButton.textContent = "AC";
-}
-
-// bracket handler (replace previous logic)
-let openBracketCount = 0;
-
+// ===== Bracket Button Logic =====
 bracketButton.addEventListener("click", () => {
   let current = display.textContent.trim();
   const last = current.slice(-1);
@@ -109,7 +122,6 @@ bracketButton.addEventListener("click", () => {
   }
 
   if ((/\d|\)/).test(last)) {
-    // If last is number or ")", close paren if open, else open new
     if (openBracketCount > 0) {
       display.textContent += ")";
       openBracketCount--;
@@ -118,7 +130,6 @@ bracketButton.addEventListener("click", () => {
       openBracketCount++;
     }
   } else {
-    // Last is operator, start a new "("
     display.textContent += "(";
     openBracketCount++;
   }
@@ -126,96 +137,73 @@ bracketButton.addEventListener("click", () => {
   updateClearButton();
 });
 
-
-// Percentage button
+// ===== Percentage Button =====
 percentageButton.addEventListener("click", () => {
-    const currentValue = display.textContent;
-    if (currentValue !== '' && /\d$/.test(currentValue)) {
-        display.textContent += '/100';
-        console.log(display.textContent);
-        updateClearButton();
-    }
-})
+  const currentValue = display.textContent;
+  if (currentValue !== '' && /\d$/.test(currentValue)) {
+    display.textContent += '/100';
+    updateClearButton();
+  }
+});
 
-// Helper functions for displaying
-// Limit input length
-function limitInputLength() {
-  const maxLength = 18;
-   if (display.textContent.length > maxLength) {
-    console.log("Limit reached");
-       display.textContent = display.textContent.slice(0, maxLength);
-   }
-
-  };
+// ===== Append to Display =====
 function appendToDisplay(value) {
-  const operators = ['+', '-', 'x', '÷'];
+  const operators = ['+', '-', 'x', '÷', '×', '−'];
   const content = display.textContent;
   const lastChar = content.slice(-1);
 
-  // 1️⃣ Handle starting input
+  // Handle starting input
   if (content === "0") {
     if (value === '.') {
-      display.textContent = "0."; // start with 0.
+      display.textContent = "0.";
       return;
     }
-    if (operators.includes(value) && value !== '-') return; // only allow "-" to start negative
+    if (operators.includes(value) && value !== '-' && value !== '−') return;
     display.textContent = value;
     return;
   }
 
-  // 2️⃣ Prevent multiple dots in the same number
+  // Prevent multiple dots in the same number
   if (value === '.') {
-    const currentNumber = content.split(/[\+\-\x÷]/).pop();
-    if (currentNumber.includes('.')) return; // ignore extra dot
+    const currentNumber = content.split(/[\+\-\x÷\×\−]/).pop();
+    if (currentNumber.includes('.')) return;
   }
 
-  // 3️⃣ Prevent two operators in a row — replace old one instead
+  // Prevent two operators in a row
   if (operators.includes(lastChar) && operators.includes(value)) {
-    // allow "-" to follow an operator if user wants negative number like "5 x -3"
-    if (value === '-' && lastChar !== '-') {
+    if ((value === '-' || value === '−') && lastChar !== '-' && lastChar !== '−') {
       display.textContent += value;
       return;
     }
-    // otherwise, replace previous operator
     display.textContent = content.slice(0, -1) + value;
     return;
   }
 
-  // 4️⃣ Append new value normally
   display.textContent += value;
   updateClearButton();
   limitInputLength();
 }
 
-
-
-
-// Number buttons
-// Digits
+// ===== Number Buttons =====
 numberButtons.forEach(button => {
-  
   button.addEventListener('click', () => appendToDisplay(button.textContent));
 });
 
-// Operators
+// ===== Operator Buttons =====
 plusButton.addEventListener('click', () => appendToDisplay('+'));
 minusButton.addEventListener('click', () => appendToDisplay('-'));
 multiplyButton.addEventListener('click', () => appendToDisplay('x'));
 divideButton.addEventListener('click', () => appendToDisplay('÷'));
 
-
-
-// Equals button
-// Firstly to Keep a clean copy of whatever number is currently valid
-let parseExpression = ''; 
-
+// ===== Equals Button =====
 equalsButton.addEventListener('click', () => {
+  // Close any open brackets
   while (openBracketCount > 0) {
-  display.textContent += ")";
-  openBracketCount--;
-}
-  // Convert pretty symbols to math-safe operators
-  let expression = display.textContent.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '');
+    display.textContent += ")";
+    openBracketCount--;
+  }
+  
+  let expression = display.textContent.replace(/x/g, '*').replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-').replace(/,/g, '');
   
   try {
     const prettyExpression = display.textContent.replace(/\*/g, '×').replace(/\//g, '÷');
@@ -237,51 +225,128 @@ equalsButton.addEventListener('click', () => {
       displayValue = (result < 0 ? '-' : '') + displayValue;
     }
 
-    // --- Update both displays ---
     display.textContent = displayValue;
-    parseExpression = result.toString(); // keeping clean raw result for new calculations
+    parseExpression = result.toString();
 
   } catch (error) {
     display.textContent = "Error";
     numberButtons.forEach(b => (b.disabled = true));
     operatorButtons.forEach(b => (b.disabled = true));
     clearButton.textContent = 'AC';
-    clearButton.addEventListener('click', () => location.reload());
   }
 
   if (display.textContent.length > 15) {
     display.textContent = display.textContent.slice(0, 15);
   }
-  
-
 
   updateClearButton();
 });
 
+// ===== Scientific Buttons Logic =====
+document.querySelectorAll('[data-function]').forEach(button => {
+  button.addEventListener('click', () => {
+    const func = button.getAttribute('data-function');
+    const currentValue = display.textContent;
+    
+    // Get numeric value (remove commas if present)
+    let numValue = parseFloat(currentValue.replace(/,/g, ''));
+    
+    try {
+      let result;
+      
+      switch(func) {
+        // Trigonometric functions (degrees)
+        case 'sin':
+          result = Math.sin(numValue * Math.PI / 180);
+          break;
+        case 'cos':
+          result = Math.cos(numValue * Math.PI / 180);
+          break;
+        case 'tan':
+          result = Math.tan(numValue * Math.PI / 180);
+          break;
+          
+        // Powers
+        case 'square':
+          result = Math.pow(numValue, 2);
+          break;
+        case 'cube':
+          result = Math.pow(numValue, 3);
+          break;
+        case 'power':
+          appendToDisplay('^');
+          return; //  user needs to enter exponent
+          
+        // Inverse
+        case 'inverse':
+          result = 1 / numValue;
+          break;
+          
+        // Logarithms
+        case 'ln':
+          result = Math.log(numValue);
+          break;
+        case 'log':
+          result = Math.log10(numValue);
+          break;
+          
+        // Constants
+        case 'e':
+          display.textContent = Math.E.toString();
+          return;
+        case 'pi':
+          display.textContent = Math.PI.toString();
+          return;
+          
+        // Roots
+        case 'sqrt':
+          result = Math.sqrt(numValue);
+          break;
+        case 'cbrt':
+          result = Math.cbrt(numValue);
+          break;
+          
+        // Absolute value
+        case 'abs':
+          result = Math.abs(numValue);
+          break;
+          
+        // Factorial
+        case 'factorial':
+          if (numValue < 0 || !Number.isInteger(numValue)) {
+            throw new Error("Factorial only works with positive integers");
+          }
+          result = 1;
+          for (let i = 2; i <= numValue; i++) {
+            result *= i;
+          }
+          break;
+          
+        // Exponential
+        case 'exp':
+          result = Math.exp(numValue);
+          break;
+          
+        default:
+          return;
+      }
+      
+      // Format and display result
+      if (Math.abs(result) >= 1e15 || (Math.abs(result) < 1e-6 && result !== 0)) {
+        display.textContent = result.toExponential(6);
+      } else {
+        display.textContent = result.toLocaleString('en-US', { maximumFractionDigits: 10 });
+      }
+      
+      updateClearButton();
+      
+    } catch (error) {
+      display.textContent = "Error";
+      console.error(error);
+    }
+  });
+});
 
-const lastValue = display.dataset.rawValue || display.textContent;
-// to be used in future functions 
-
-// ===== End of function buttons logic =====
-// Function to add commas to numbers and cap numbers at a trillion
-
-
-
-// ===== Scientific buttons logic =====
-const scDisplay = document.getElementById('scientific');
-const scButtons = document.querySelectorAll('.sci-btn');
-const scToggleButton = document.getElementById('scToggleButton');
-const basicDisplay = document.getElementById('basic');
-scDisplay.style.display = 'none';
-function toggleScientific() {
-  if (scDisplay.style.display === 'none') {
-    scDisplay.style.display = 'grid';
-    basicDisplay.classList.add('adaptToScDisplay');
-  } else {
-    scDisplay.style.display = 'none';
-    basicDisplay.classList.remove('adaptToScDisplay');
-  }
-}
-
-scToggleButton.addEventListener("click", toggleScientific)
-// ===== End of scientific buttons logic =====
+// ===== Initialize =====
+display.addEventListener('input', limitInputLength);
+updateClearButton();

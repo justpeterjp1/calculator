@@ -4,83 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculator</title>
-        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-        <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Only minimal custom CSS for animations */
+        #scientific {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        
+        #scientific.active {
+            max-height: 400px;
+            opacity: 1;
+        }
+        
+        .btn {
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+    </style>
 </head>
-<body class="flex items-center justify-center min-h-screen bg-gray-500">
-  <div
-    class="w-[90%] max-w-sm bg-gray-400 text-white rounded-2xl p-6 shadow-lg sm:w-[400px] sm:h-auto h-[90vh] md: h-[80dvh] overflow-hidden sm:rounded-2xl sm:p-8 transition-all"
-  >
+<body class="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-600 to-gray-800">
+  <div class="w-[90%] max-w-md bg-gray-800 text-white rounded-3xl p-6 shadow-2xl">
+    
     <!-- Display section -->
     <div
-      id="display"
-      class="flex flex-col gap-2 w-full h-48 bg-gray-700 rounded-xl mb-6 flex items-end justify-end p-4 text-3xl font-mono break-words mt-4 md:mt-0"
-    ><div id="previous" class="" disabled></div>
-      <div id="current" class="text-4xl ">0</div>
+      id="display-container"
+      class="w-full min-h-[120px] bg-gray-600 rounded-2xl mb-6 flex flex-col items-end justify-end p-4 font-mono overflow-hidden"
+    >
+      <div id="previous" class="text-gray-400 text-lg min-h-[24px] w-full text-right truncate"></div>
+      <div id="current" class="text-white text-4xl font-semibold w-full text-right truncate">0</div>
     </div>
-    <!-- Scientific Buttons -->
-      <div id="scientific" class="grid grid-cols-4 gap-4 mt-6 text-xl">
-        <!-- Row 1 -->
-        <button class="btn sci-btn" data-value="sin(">sin</button>
-        <button class="btn sci-btn" data-value="cos(">cos</button>
-        <button class="btn sci-btn" data-value="tan(">tan</button>
-        <button class="btn sci-btn" data-value="E">EXP</button>
-        
 
-        <!-- Row 2 -->
-        <button class="btn sci-btn" data-value="^2">x²</button>
-        <button class="btn sci-btn" data-value="^3">x³</button>
-        <button class="btn sci-btn" data-value="^">xʸ</button>
-        <button class="btn sci-btn" data-value="1/(">1/x</button>
-
-        <!-- Row 3 -->
-        <button class="btn sci-btn" data-value="ln(">ln</button>
-        <button class="btn sci-btn" data-value="log(">log</button>
-        <button class="btn sci-btn" data-value="e">e</button>
-        <button class="btn sci-btn" data-value="pi">π</button>
-
-        <!-- Row 4 -->
-        <button class="btn sci-btn" data-value="sqrt(">√</button>
-        <button class="btn sci-btn" data-value="cbrt(">³√</button>
-        <button class="btn sci-btn" data-value="abs(">abs</button>
-        <button class="btn sci-btn" data-value="!">x<span class="font-bold">!</span></button>
-      </div>
-
-    <!-- Buttons section -->
-    <div id="basic" class="grid grid-cols-4 gap-x-4 gap-y-10 md:gap-x-4 md:gap-y-4 lg:gap-x-4 lg:gap-y-4 p-2 text-2xl">
-
+    <!-- Scientific Buttons (Initially Hidden) -->
+    <div id="scientific" class="grid grid-cols-4 gap-2 mb-4">
       <!-- Row 1 -->
-      <button class="btn function-btn clear">C</button>
-      <button class="btn function-btn bracket">( )</button>
-      <button class="btn function-btn percent">%</button>
-      <button class="btn operator-btn divide">÷</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="sin">sin</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="cos">cos</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="tan">tan</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="exp">EXP</button>
 
       <!-- Row 2 -->
-      <button class="btn number-btn">7</button>
-      <button class="btn number-btn">8</button>
-      <button class="btn number-btn">9</button>
-      <button class="btn operator-btn multiply">×</button>       
-      <!-- Row 3 -->  
-      <button class="btn number-btn">4</button>   
-      <button class="btn number-btn">5</button>
-      <button class="btn number-btn">6</button>
-      <button class="btn operator-btn minus">−</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="square">x²</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="cube">x³</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="power">xʸ</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="inverse">1/x</button>
+
+      <!-- Row 3 -->
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="ln">ln</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="log">log</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="e">e</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="pi">π</button>
+
       <!-- Row 4 -->
-        <button class="btn number-btn">1</button>
-        <button class="btn number-btn">2</button>
-        <button class="btn number-btn">3</button>
-        <button class="btn operator-btn plus">+</button>
-        <!-- Row 5 -->
-         <button id="scToggleButton" class="btn function-btn scientific">SC</button>
-        <button class="btn number-btn ">0</button>
-        <button class="btn number-btn">.</button>
-        <button class="btn operator-btn equals">=</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="sqrt">√</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="cbrt">³√</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="abs">|x|</button>
+      <button class="btn bg-blue-600 hover:bg-blue-400 text-white rounded-xl py-3 text-sm font-semibold" data-function="factorial">x!</button>
     </div>
 
+    <!-- Basic Buttons -->
+    <div id="basic" class="grid grid-cols-4 gap-3 text-xl">
 
+      <!-- Row 1 -->
+      <button class="btn function-btn clear bg-gray-600 hover:bg-gray-500 text-white rounded-xl py-4 font-semibold">C</button>
+      <button class="btn function-btn bracket bg-gray-600 hover:bg-gray-500 text-white rounded-xl py-4 font-semibold">( )</button>
+      <button class="btn function-btn percent bg-gray-600 hover:bg-gray-500 text-white rounded-xl py-4 font-semibold">%</button>
+      <button class="btn operator-btn divide  text-white rounded-xl py-4 font-semibold">÷</button>
+
+      <!-- Row 2 -->
+      <button class="btn number-btn bg-gray-700 hover:bg-gray-600 text-white rounded-xl py-4 font-semibold">7</button>
+      <button class="btn number-btn bg-gray-700 hover:bg-gray-600 text-white rounded-xl py-4 font-semibold">8</button>
+      <button class="btn number-btn bg-gray-700 hover:bg-gray-600 text-white rounded-xl py-4 font-semibold">9</button>
+      <button class="btn operator-btn multiply   text-white rounded-xl py-4 font-semibold">×</button>
+      
+      <!-- Row 3 -->
+      <button class="btn number-btn bg-gray-700 hover:bg-gray-600 text-white rounded-xl py-4 font-semibold">4</button>
+      <button class="btn number-btn bg-gray-700 hover:bg-gray-600 text-white rounded-xl py-4 font-semibold">5</button>
+      <button class="btn number-btn bg-gray-700 hover:bg-gray-600 text-white rounded-xl py-4 font-semibold">6</button>
+      <button class="btn operator-btn minus   text-white rounded-xl py-4 font-semibold">−</button>
+      
+      <!-- Row 4 -->
+      <button class="btn number-btn bg-gray-700 hover:bg-gray-600 text-white rounded-xl py-4 font-semibold">1</button>
+      <button class="btn number-btn bg-gray-700 hover:bg-gray-600 text-white rounded-xl py-4 font-semibold">2</button>
+      <button class="btn number-btn bg-gray-700 hover:bg-gray-600 text-white rounded-xl py-4 font-semibold">3</button>
+      <button class="btn operator-btn plus   text-white rounded-xl py-4 font-semibold">+</button>
+      
+      <!-- Row 5 -->
+      <button id="scToggleButton" class="btn function-btn scientific bg-purple-600 hover:bg-purple-700 text-white rounded-xl py-4 font-semibold">SC</button>
+      <button class="btn number-btn bg-gray-700 hover:bg-gray-600 text-white rounded-xl py-4 font-semibold">0</button>
+      <button class="btn number-btn bg-gray-700 hover:bg-gray-600 text-white rounded-xl py-4 font-semibold">.</button>
+      <button class="btn operator-btn equals bg-green-600 hover:bg-green-700 text-white rounded-xl py-4 font-semibold">=</button>
+    </div>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/mathjs@11/lib/browser/math.js"></script>
   <script src="script.js"></script>
 </body>
-
 </html>
